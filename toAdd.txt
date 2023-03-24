@@ -13,3 +13,4 @@ int read() {
     x = (x << 3) + (x << 1) + (c ^ 48), c = getchar();
   return s * x;
 fast matrix exponentiation (forse c'è)
+https://www.geeksforgeeks.org/ordered-set-gnu-c-pbds/amp/
