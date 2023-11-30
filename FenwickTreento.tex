@@ -1,27 +1,44 @@
-﻿---
-header-includes: |
-    \usepackage{fancyhdr}
-    \pagestyle{fancy}
-    \fancyhead[LO,LE]{Fenwick Treento}
-    \fancyhead[RO,RE]{\thepage}
-    \pagenumbering{arabic}
-...
+\documentclass{article}
+\usepackage[margin=1.5cm]{geometry}
+\usepackage{listings}
+\usepackage{setspace}
+\setstretch{0}
+\usepackage{titlesec}
+\titlespacing\section{0pt}{12pt plus 4pt minus 2pt}{6pt plus 2pt minus 2pt}
+\titlespacing\subsection{0pt}{10pt plus 4pt minus 2pt}{4pt plus 2pt minus 2pt}
+\usepackage{xcolor}
+\lstset{language=C++, 
+        basicstyle=\ttfamily\small, 
+        keywordstyle=\color{blue},
+        commentstyle=\color{green},
+        morecomment=[l][\color{magenta}]{\#},
+        breaklines=true,
+        postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}}
 
-<!--This document may contain up to 25 pages of reference materials, single-sided, letter or A4 size, with pages numbered in the upper right-hand corner and your university name and team name printed in the upper left-hand corner.
-Text and illustrations must be readable by a person with correctable eyesight without magnification from a distance of 1/2 meter. It may include hand-written comments and corrections on the fronts of pages only.-->
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{} % pulisce l'intestazione e il piè di pagina predefiniti
+\rhead{Fenwick Treento} % intestazione a destra
+% \lhead{Nome della Squadra} % intestazione a sinistra
+\cfoot{\thepage} % numero di pagina al centro del piè di pagina
 
-# Grafi
+\begin{document}
 
-### Ordinamento topologico (DAG)
-- per ogni nodo esploro tutti i figli e dopo inserisco il risultato in uno stack
-- il risultato è lo stack ribaltato
+\section{Grafi}
 
-### SCC, Kosaraju, Strongly Connected Components (grafo diretto)
-- calcolo l’ordinamento topologico
-- calcolo il grafo trasposto (con i vertici al contrario)
-- esploro il grafo trasposto procedendo nell’ordine dell’ordinamento topologico. Ogni esplorazione è una componente fortemente connessa (eventualmente di 1 nodo).
+\subsection{Ordinamento Topologico (DAG)}
+\begin{enumerate}
+    \item Per ogni nodo esploro tutti i figli e dopo inserisco il risultato in uno stack
+    \item Il risultato è lo stack ribaltato
+\end{enumerate}
 
-```cpp
+\subsection{SCC, Kosaraju, Strongly Connected Components (grafo diretto)}
+\begin{enumerate}
+    \item Calcolo l’ordinamento topologico
+    \item Calcolo il grafo trasposto
+    \item Esploro il grafo trasposto procedendo nell’ordine dell’ordinamento topologico. Ogni esplorazione è una componente fortemente connessa (eventualmente di 1 nodo).
+\end{enumerate}
+\begin{lstlisting}
 struct Node {
    bool vis=false;
    int condensed=-1;
@@ -63,14 +80,14 @@ for(int n=0;n<N;++n){
      ++c;
   }
 }
-```
+\end{lstlisting}
 
-### Max flow
-- in BFS -> complessità `V*E^2`
-- in DFS -> complessità `flow*(V+E)`
-- Utile per risolvere bipartite matching -> attaccare sorgente (source) a tutti nodi a sinistra, pozzo (sink) a tutti i nodi a destra, tutti gli archi con flow = 1
-
-```cpp
+\subsection{Max Flow}
+\begin{enumerate}
+    \item in BFS $\rightarrow$ O($V\cdot E^2$)
+    \item in DFS $\rightarrow$ O($flow\cdot (V+E)$)
+\end{enumerate}
+\begin{lstlisting}
 vector<int> parent(N);
 auto bfsAugmentingPath = [&]() -> int {
    fill(parent.begin(), parent.end(), -1);
@@ -106,21 +123,23 @@ while(1) {
        last = parent[last];
     }
  }
-```
+\end{lstlisting}
 
-### Tarjan, Articulation points and bridges (grafo non diretto)
+\subsection{Tarjan, Articulation points and bridges (grafo non diretto)}
+\begin{enumerate}
+    \item Inizialmente settare $t=0$
+    \item Fare DFS incrementando $t$ ogni volta che si attraversa un arco in avanti, cioè ogni volta che si vede un nuovo nodo
+    \item Ogni nodo ha un $tEntrata$ e un $tMin$
+    \begin{itemize}
+        \item $tEntrata$ è il $t$ della prima volta in cui quel nodo è stato visto
+        \item $tMin$ è il min tra $tEntrata$ e tutti i $tMin$ dei nodi adiacenti eccetto il padre nella DFS
+    \end{itemize}
+    \item Il nodo $b$ è un \textbf{articulation point} se esiste un nodo adiacente $a$ tale per cui $a.tMin \geq b.tEntrata$
+    \item L'arco che connette due nodi $a$ e $b$ è un \textbf{bridge} se $a.tMin > b.tEntrata$
+\end{enumerate}
 
-- Inizialmente settare `t=0`
-- Fare dfs incrementando `t` ogni volta che si attraversa un arco in avanti, cioè ogni volta che si vede un nuovo nodo
-- Ogni nodo ha un `tEntrata` e `tMin`
-  - `tEntrata` è il `t` della prima volta in cui quel nodo è stato visto
-  - `tMin` è il min tra `tEntrata` e tutti i `tMin` dei nodi adiacenti eccetto il padre nella dfs
-- Il nodo `b` è un **articulation point** se esiste un nodo adiacente `a` tale per cui `a.tMin >= b.tEntrata`
-- L'arco che connette due nodi `a` e `b` è un **bridge** se `a.tMin > b.tEntrata`
-
-### Bipartite graph / bicoloring
-
-```cpp
+\subsection{Bipartite Graph / Bicoloring}
+\begin{lstlisting}
 struct Node {
   int color=-1;
   vector<int> conn;
@@ -149,15 +168,17 @@ int32_t main() {
     }
   }
 }
-```
+\end{lstlisting}
 
-# Alberi
+\section{Alberi}
 
-### UFDS, Union Find Disjoint Set
-
-- si può ottimizzare ammortizzando di più mettendo `return nodes[i].parent = parent(nodes[i].parent);` in `parent()`
-
-```cpp
+\subsection{UFDS, Union Find Disjoint Set}
+Si può ottimizzare ammortizzando di più mettendo in parent():
+\begin{lstlisting}
+    return nodes[i].parent = parent(nodes[i].parent);
+\end{lstlisting}
+Codice:
+\begin{lstlisting}
 struct Node {
     int parent=-1, rank=0;
 };
@@ -174,13 +195,14 @@ auto connect = [&](int a, int b) {
     nodes[pb].depth = max(nodes[pb].depth, 1+nodes[pa].depth);
     return true;
 };
-```
+\end{lstlisting}
 
-
-### LCA, Lowest Common Ancestor
-- Salvarsi per ogni nodo la profondità dalla radice
-- Trovare con binary lifting per ogni nodo l’array `antenati[20]` (e se serve anche anche `dist[20]` o `minarco[20]`) dove `antenati[e]` indica l’antenato risalendo di `2^e` nodi. Basta prima impostare gli `antenati[0]` e poi fare un `for(0<e<20) for(nodo in albero) nodo.antenati[e] = albero[nodo.antenati[e-1]].antenati[e-1]`:
-```cpp
+\subsection{LCA, Lowest Common Ancestor}
+\begin{enumerate}
+    \item Salvarsi per ogni nodo la profondità dalla radice
+    \item Trovare con binary lifting per ogni nodo l’array "antenati[20]" (e se serve anche anche "dist[20]" o "minarco[20]") dove "antenati[e]" indica l’antenato risalendo di $2^e$ nodi. Basta prima impostare gli "antenati[0]" e poi fare un "for($0<e<20$) for(nodo in albero) nodo.antenati[e] = albero[nodo.antenati[e-1]].antenati[e-1]"
+\end{enumerate}
+\begin{lstlisting}
 for(int e=1;e<20;++e) {
    for(int i=0; i<N; i++) {
       int half = albero[i].antenati[e-1];
@@ -189,10 +211,8 @@ for(int e=1;e<20;++e) {
       albero[i].minarco[e] = min(albero[i].minarco[e-1], albero[half].minarco[e-1]);
    }
 }
-```
-    
-- Funzione `lift()`:
-```cpp
+
+
 int lift(int v, int h) {
    for(int e=20; e>=0; e--) {
       if(h & (1<<e)) {
@@ -201,10 +221,7 @@ int lift(int v, int h) {
    }
    return v;
 }
-```
 
-- Funzione `lca()` (si cicla `e` al contrario per scomporre in potenze di 2 decrescenti):
-```cpp
 int lca(int u, int v) {
    int hu=albero[u].altezza, hv=albero[v].altezza;
    if (hu>hv) {
@@ -225,28 +242,33 @@ int lca(int u, int v) {
    }
    return albero[u].antenati[0];
 }
-```
+\end{lstlisting}
+Oppure si può fare anche in $O(n)$:
+\begin{enumerate}
+    \item dfs dalla radice salvando quando nodi vengono aperti e chiusi in array
+    \item fare Range Minimum Query con una Sparse Table (la costruzione richiede $O(n\cdot \log n)$)
+\end{enumerate}
 
-Oppure si può fare anche in `O(n)`:
-- dfs dalla radice salvando quando nodi vengono aperti e chiusi in array
-- fare Range Minimum Query con una Sparse Table (la costruzione richiede `O(n*logn)`)
+\subsection{MST, Minimum Spanning Tree}
+\begin{enumerate}
+    \item Sortare gli archi per il peso ($O(E\cdot \log E)=O(V^2\cdot \log V)$)
+    \item Partire dagli archi più piccoli ed aggiungerli all'albero, ma solo se questo non lo rende non più un albero ($O(E)=O(V^2)$)
+    \item Usare Union Find per capire se un arco unirebbe due nodi già collegati e romperebbe l'albero
+\end{enumerate}
+\begin{itemize}
+    \item Se serve trovare il \textbf{maximum} spanning tree basta scegliere gli archi più grossi invece che più piccoli
+    \item Se serve trovare il \textbf{secondo} minimum spanning tree, si può:
+    \begin{itemize}
+        \item Per ogni percorso che connette due nodi nel MST, trovare l'arco massimo nel percorso con $V$ DFS ($O(V^2)$)
+        \item Per ogni arco $a-b$ che non è già nel MST, calcolare di quanto aumenterebbe il peso totale del MST se si aggiungesse quell'arco e si togliesse però l'arco massimo nel percorso $a-b$
+        \item Il minimo dei pesi totali trovati sopra corrisponde al second minimum spanning tree
+    \end{itemize}
+\end{itemize}
 
-### MST, Minimum spanning tree
+\section{Strutture Dati}
 
-- Sortare gli archi per il peso (`O(E*logE)=O(V^2*logV)`)
-- Partire dagli archi più piccoli ed aggiungerli all'albero, ma solo se questo non lo rende non più un albero (`O(E)=O(V^2)`)
-- Usare Union Find per capire se un arco unirebbe due nodi già collegati e romperebbe l'albero
-- Se serve trovare il *maximum* spanning tree basta scegliere gli archi più grossi invece che più piccoli
-- Se serve trovare il *second* minimum spanning tree, si può:
-  - Per ogni percorso che connette due nodi nel MST, trovare l'arco massimo nel percorso con `V` dfs (`O(V^2)`)
-  - Per ogni arco `a-b` che non è già nel MST, calcolare di quanto aumenterebbe il peso totale del MST se si aggiungesse quell'arco e si togliesse però l'arco massimo nel percorso `a-b`.
-  - Il minimo dei pesi totali trovati sopra corrisponde al second minimum spanning tree
-    
-# Strutture dati
-
-### Segment tree base
-
-```cpp
+\subsection{Segment Tree base}
+\begin{lstlisting}
 int higherPowerOf2(int x) {
     int res = 1;
     while (res < x) res *= 2;
@@ -285,11 +307,10 @@ struct SegmentTree {
         update(1, 0, data.size()/2, x, v);
     }
 };
-```
+\end{lstlisting}
 
-### Segment tree con lazy propagation
-
-```cpp
+\subsection{Segment Tree con Lazy Propagation}
+\begin{lstlisting}
 enum class Mode : char { none, add, set };
 struct Node {
    ll min = numeric_limits<ll>::max();
@@ -384,11 +405,10 @@ void lazySet(int l, int r, ll x, int a, int b, int i) {
    lazySet(l, r, x, (a+b)/2, b, i*2+1);
    setup(i);
 }
-```
+\end{lstlisting}
 
-### Fenwick tree
-
-```cpp
+\subsection{Fenwick Tree}
+\begin{lstlisting}
 int leastSignificantOneBit(int i){
 	return i & (-i);
 }
@@ -406,26 +426,27 @@ struct FenwickTree {
 		return data[pos] + sumUpTo(pos - leastSignificantOneBit(pos));
 	}
 };
-```
+\end{lstlisting}
 
-### Sparse table
+\subsection{Sparse Table}
+\begin{itemize}
+    \item Per ogni elemento di un array applico l'operazione ai range $[0,1), [0,2), [0,4), ...$ (potenze di 2) e salvo il valore in un array $st[N][32]$
+    \item (vale per operazioni idempotenti, i.e. "a op a = a") per trovare il valore nel range $[l,r)$ in $O(1)$ basta trovare $k = max(k\_$ tali che $2^{k\_} \leq r-l$) e poi il risultato della query è "st[l][k] op st[r-($1LL<<k$)][k]"
+\end{itemize}
 
-- Per ogni elemento di un array applico l'operazione ai range `[0,1), [0,2), [0,4), ...` (potenze di 2) e salvo il valore in un array `st[N][32]`
-- (vale per operazioni idempotenti, i.e. `a op a = a`) per trovare il valore nel range `[l,r)` in `O(1)` basta trovare `k = max(k_ tali che 2^k_ <= r-l)` e poi il risultato della query è `st[l][k] op st[r-(1LL<<k)][k]`
+\section{Algoritmi vari}
 
-# Algoritmi vari
+\subsection{Zaino / 0-1 knapsack}
+\begin{enumerate}
+    \item In input ci sono il numero di oggetti $N$, la capienza dello zaino $C$, i pesi $W[N]$ e i valori $V[N]$
+    \item Caso base $f(N,c) = 0$
+    \item Caso ricorsivo $f(i,c) = (W[i] \leq c$ ? $max(f(i+1, c), f(i+1, c-W[i]) + V[i]) : f(i+1, c))$
+    \item Risultato è $f(0,C)$
+    \item Usare $mem[i][c]$ per salvare risultati e fare DP
+\end{enumerate}
 
-### Zaino / 0-1 knapsack
-
-- In input ci sono il numero di oggetti `N`, la capienza dello zaino `C`, i pesi `W[N]` e i valori `V[N]`
-- Caso base `f(N,c) = 0`
-- Caso ricorsivo `f(i,c) = (W[i] <= c ? max(f(i+1, c), f(i+1, c-W[i]) + V[i]) : f(i+1, c))`
-- Risultato è `f(0,C)`
-- Usare `mem[i][c]` per salvare risultati e fare DP
-
-### LIS, Longest Increasing Subsequence
-
-```cpp
+\subsection{LIS, Longest Increasing Subsequence}
+\begin{lstlisting}
 int main() {
     int N;
     cin>>n;
@@ -442,29 +463,27 @@ int main() {
     auto it = lower_bound(ultimoPreso.begin(), ultimoPreso.end(), numeric_limits<int>::max());
     cout << (it - ultimoPreso.begin() - 1);
 }
-```
+\end{lstlisting}
 
-# Matematica
+\section{Matematica}
 
-### Fast exponentiation
-
-```cpp
+\subsection{Fast exponentiation}
+\begin{lstlisting}
 int fastExp(int x, int e){
    if (e==0) return 1;
    int half = fastExp(x, e/2);
    return ((half*half % M) * (e%2 == 1 ? x : 1)) % M;
 }
-```
+\end{lstlisting}
 
-### Euclide esteso
-`A/B=d` & `A%B=C` => `Bx+Cy = 1` con `y=-x` e `x = dx - y`
+\subsection{Euclide esteso}
+$A/B=d\; \& \;A\%B=C \rightarrow Bx+Cy = 1$ con $y=-x$ e $x = dx - y$
 
-### Fermat & inverso moltiplicativo
-inverso di `A` = `A^(M-2)%M` = `fastExp(A, M-2)`
+\subsection{Fermat \& inverso moltiplicativo}
+Inverso di $A = A^{(M-2)}\%M = fastExp(A, M-2)$
 
-### Rabin Karp hash
-
-```cpp
+\subsection{Rabin Karp Hash}
+\begin{lstlisting}
 #define hash_t uint64_t
 #define M 1000000007
 #define P 59
@@ -498,117 +517,130 @@ signed main() {
    // obtain the hash of s in range [n, n+l) with prefix sum
    hash_t hcmp = (((hashes[n + l] - hashes[n] + M) % M) * PexpMulInv[n]) % M;
 }
-```
+\end{lstlisting}
 
-# Geometria
+\section{Geometria}
 
-### Vettori
+\subsection{Vettori}
+\begin{itemize}
+    \item Prodotto vettore: $A^B = A.x\cdot B.y - A.y\cdot B.x = |A|\cdot|B|\cdot sin$(angolo fra A e B)
+    \begin{itemize}
+        \item Proprietà: $A^B = -B^A, A^A = 0, A^{(B+C)} = A^B + A^C$
+    \end{itemize}
+    \item $(0,0)$, $A$ e $B$ allineati sse $A^B = 0$
+    \item Data retta orientata $AB$ e punto $C$, il prodotto $p=(A-C)^{(B-C)}$ indica:
+    \begin{itemize}
+        \item che $C$ è: sulla retta sse $p=0$, a destra della retta sse $p<0$, a sinistra della retta sse $p>0$.
+        \item che $A$, $B$ e $C$ sono: in ordine orario sse $p<0$, antiorario sse $p>0$
+        \item \textbf{Area} triangolo $ABC = |p|/2$ (senza $/2$ per parallelogramma)
+        \item \textbf{Distanza} di $C$ da $AB = |p|/(B-A)$
+    \end{itemize}
+    \item Area poligono $P_0, P_1, ..., P_n-1 = 1/2 \cdot |P_0 \wedge P_1 + P_1 \wedge P_2 + ... + P_{n-2} \wedge P_{n-1} + P_{n-1} \wedge P_0|$
+    \item Per vedere se $P$ è dentro il poligono \textbf{convesso} $P_0, P_1, ..., P_n-1$: controllare se $P$ sempre dalla stessa parte di tutti i $P_0P_1, P_1P_2, ..., P_{n-1}P_0$
+    \item Per vedere se $P$ è dentro un poligono \textbf{concavo}: controllare $\#$ intersezioni della semiretta $PQ$ con $Q$ scelto a caso molto grande: se $\#$ pari $P$ è esterno, se $\#$ dispari è interno
+    \item $AB$ e $CD$ si intersecano sse ($C$ e $D$ da parti opposte di $AB$) e ($A$ e $B$ da parti opposte di $CD$)
+    \begin{itemize}
+        \item Intersezioni mantenute con trasformazioni lineari
+    \end{itemize}
+    \item \textbf{Ordinare} punti per \textbf{angolo}: $sort$ con $operator<(P,Q) = P \wedge Q < 0$
+\end{itemize}
 
-- Prodotto vettore: `A^B = A.x*B.y - A.y*B.x = |A|*|B|*sin(angolo fra A e B)`
-  - Proprietà: `A^B = -B^A`, `A^A = 0`, `A^(B+C) = A^B + A^C`
-- `(0,0)`, `A` e `B` allineati sse `A^B = 0`
-- Data retta orientata `AB` e punto `C`, il prodotto `p=(A-C)^(B-C)` indica
-  - che `C` è: sulla retta sse `p=0`, a destra della retta sse `p<0`, a sinistra della retta sse `p>0`
-  - che `A`, `B` e `C` sono: in ordine orario sse `p<0`, antiorario sse `p>0`
-  - **Area** triangolo `ABC` = `|p|/2` (senza `/2` per parallelogramma)
-  - **Distanza** di `C` da `AB` = `|p|/(B-A)`
-- Area poligono `P_0, P_1, ..., P_n-1` = `1/2 * |P_0 ^ P_1 + P_1 ^ P_2 + ... + P_n-2 ^ P_n-1 + P_n-1 ^ P0|`
-- Per vedere se `P` è dentro il poligono *convesso* `P_0, P_1, ..., P_n-1`: controllare se `P` sempre dalla stessa parte di tutti i `P_0P_1, P_1P_2, ..., P_n-1P_0`
-- Per vedere se `P` è dentro un poligono *concavo*: controllare `#` intersezioni della semiretta `PQ` con `Q` scelto a caso molto grande: se `#` pari `P` è esterno, se `#` dispari è interno
-- `AB` e `CD` si intersecano sse (`C` e `D` da parti opposte di `AB`) e (`A` e `B` da parti opposte di `CD`)
-  - Intersezioni mantenute con trasformazioni lineari
-- **Ordinare** punti per **angolo**: `sort` con `operator<(P,Q) = P^Q < 0`
+\subsection{Convex Hull}
+\begin{enumerate}
+    \item Trovare il punto più in basso (P0)
+    \item Ordinare per angolo rispetto a P0 usando $(P-P0)\wedge(Q-P0)$, vedi sopra ($N\log N$)
+    \item Andare avanti, e buttare in uno stack il punto che si trova
+    \item Se l’angolo tra gli ultimi 3 è ottuso rimuovo l’elemento centrale dallo stack e ripeto
+\end{enumerate}
 
-### Convex Hull
-- trovare il punto più in basso (P0)
-- ordinare per angolo rispetto a P0 usando `(P-P0)^(Q-P0)`, vedi sopra (NlogN)
-- andare avanti, e buttare in uno stack il punto che si trova
-- se l’angolo tra gli ultimi 3 è ottuso rimuovo l’elemento centrale dallo stack e ripeto
+\section{Utilities}
 
-### FFT Fast Fourier Transform
-- gestisco numeri complessi (complex della lib standard)
-- devo valutare la funzione su `2N` punti circa (`e^((O*2pi)/2n)`)
-- visto che alcuni sono sicuramente >0 posso dividergli dagli altri, elevarli ^2 e ripetere (per costruzione funziona)
-- moltiplicare i valori dei 2 polinomi
-- riapplicare la FFT ma con -O
-
-# Utilities
-
-### Date e tempo
-
-```cpp
+\subsection{Date e tempo}
+\begin{lstlisting}
 struct std::tm tmp;
 
 ll readDate(){
 	cin>>get_time(&tmp, "%Y-%m-%d %H:%M");
 	return chrono::system_clock::from_time_t(mktime(&tmp)).time_since_epoch().count();
 }
-```
+\end{lstlisting}
 
-### STL
+\subsection{STL}
+\begin{itemize}
+    \item operator$<$ Deve ritornare $false$ in caso di uguaglianza!
+    \item \begin{lstlisting}
+        priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int, int>>>
+    \end{lstlisting}
+    \item auto cmp = [](const T\& a, const T\& b)\{ return /* ... */; \};
+    \item $priority\_queue<T,vec<T>,decltype(cmp)>$ pq\{cmp\};
+\end{itemize}
 
-- `operator<` Deve ritornare `false` in caso di uguaglianza!
-- ```cpp
-priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int, int>>>
-```
-- ```cpp
-auto cmp = [](const T& a, const T& b){ return /* ... */; };
-priority_queue<T,vec<T>,decltype(cmp)> pq{cmp};
-```
+\section{In caso di Errore}
 
-# In caso di errore
+\subsection{Wrong answer WA}
+\begin{enumerate}
+    \item $\#$define int long long
+    \item $1LL$ invece che $1$
+    \item Se ci sono moduli, vengono fatti dappertutto?
+    \item Stampa la tua soluzione!
+    \item Stai cancellando tutte le strutture di dati tra i casi di test?
+    \item Il tuo algoritmo può gestire l'intera gamma di input?
+    \item Leggi di nuovo l'intero testo del problema.
+    \item Il tuo formato di output è corretto? (inclusi gli spazi bianchi)
+    \item Gestisci correttamente tutti i corner case?
+    \item Hai compreso correttamente il problema?
+    \item Sei sicuro che il tuo algoritmo funzioni?
+    \item A quali casi speciali non hai pensato?
+    \item Sei sicuro che le funzioni STL che usi funzionino come pensi?
+    \item Crea alcuni casi di prova su cui far girare il tuo algoritmo.
+    \item Esegui l'algoritmo per un caso semplice.
+    \item Ripassa questa lista.
+    \item Spiega il tuo algoritmo ad un compagno di squadra.
+    \item Chiedi al compagno di squadra di guardare il tuo codice.
+    \item Vai a fare una piccola passeggiata, per esempio al bagno.
+    \item Riscrivi la tua soluzione dall'inizio o fallo fare ad un compagno di squadra.
+\end{enumerate}
 
-### Wrong answer WA
-- `#define int long long`
-  - `1LL` invece che `1`
-- Se ci sono moduli, vengono fatti dappertutto?
-- Stampa la tua soluzione!
-- Stai cancellando tutte le strutture di dati tra i casi di test?
-- Il tuo algoritmo può gestire l'intera gamma di input?
-- Leggi di nuovo l'intero testo del problema.
-- Il tuo formato di output è corretto? (inclusi gli spazi bianchi)
-- Gestisci correttamente tutti i corner case?
-- Hai compreso correttamente il problema?
-- Sei sicuro che il tuo algoritmo funzioni?
-- A quali casi speciali non hai pensato?
-- Sei sicuro che le funzioni STL che usi funzionino come pensi?
-- Crea alcuni casi di prova su cui far girare il tuo algoritmo.
-- Esegui l'algoritmo per un caso semplice.
-- Ripassa questa lista.
-- Spiega il tuo algoritmo ad un compagno di squadra.
-- Chiedi al compagno di squadra di guardare il tuo codice.
-- Vai a fare una piccola passeggiata, per esempio al bagno.
-- Riscrivi la tua soluzione dall'inizio o fallo fare ad un compagno di squadra.
+\subsection{Runtime error RE}
+\begin{enumerate}
+    \item Hai testato tutti i corner case localmente?
+    \item Stai accedendo ad indici out of bound di qualche vettore? (usa $.at()$)
+    \item Qualche possibile divisione per 0? (mod 0 per esempio)
+    \item Qualsiasi possibile ricorsione infinita?
+\end{enumerate}
 
-### Runtime error RE
-- Hai testato tutti i corner case localmente?
-- Stai accedendo ad indici out of bound di qualche vettore? (usa `.at()`)
-- Qualche possibile divisione per 0? (mod 0 per esempio)
-- Qualsiasi possibile ricorsione infinita?
+\subsection{Time limit exceeded TLE}
+\begin{enumerate}
+    \item $\#$pragma GCC optimize("O3")
+    \item Hai qualche possibile loop infinito?
+    \item Qual è la complessità del tuo algoritmo?
+    \item Stai copiando molti dati non necessari? (usa le reference)
+    \item Quanto è grande l'input e l'output?
+    \item Cosa pensano i tuoi compagni di squadra del tuo algoritmo?
+\end{enumerate}
 
-### Time limit exceeded TLE
-- `#pragma GCC optimize("O3")`
-- Hai qualche possibile loop infinito?
-- Qual è la complessità del tuo algoritmo?
-- Stai copiando molti dati non necessari? (usa le reference)
-- Quanto è grande l'input e l'output?
-- Cosa pensano i tuoi compagni di squadra del tuo algoritmo?
+\subsection{Memory limit exceeded MLE}
+\begin{enumerate}
+    \item Qual è la quantità massima di memoria di cui il vostro algoritmo dovrebbe avere bisogno?
+    \item Ci sono memory leak? (usa la STL invece)
+    \item Stai cancellando tutte le strutture di dati tra un test e l'altro?
+\end{enumerate}
 
-### Memory limit exceeded MLE
-- Qual è la quantità massima di memoria di cui il vostro algoritmo dovrebbe avere bisogno?
-- Ci sono memory leak? (usa la STL invece)
-- Stai cancellando tutte le strutture di dati tra un test e l'altro?
+\subsection{Output limit exceeded OLE}
+\begin{enumerate}
+    \item Avete rimosso tutte le stampe di debug?
+    \item Il vostro ciclo di output può andare in tilt?
+\end{enumerate}
 
-### Output limit exceeded OLE
-- Avete rimosso tutte le stampe di debug?
-- Il vostro ciclo di output può andare in tilt?
+\section{Aggiunte Matte}
 
-### Fft double
-- può avere problemi di approssimazione con numeri grandi, ricordarsi di arrotondare bene
-- non mi va con cose negative
-- (non me ne prendo responsabilità)
-
-```cpp
+\subsection{FFT double}
+\begin{itemize}
+    \item Può avere problemi di approssimazione con numeri grandi, ricordarsi di arrotondare bene
+    \item Non mi va con cose negative
+    \item (Non me ne prendo responsabilità)
+\end{itemize}
+\begin{lstlisting}
   #include <bits/stdc++.h>
 
   using namespace std;
@@ -707,13 +739,15 @@ priority_queue<T,vec<T>,decltype(cmp)> pq{cmp};
       }
       return 0;
   }
-```
-### fft modulo M
-- accetta numeri negativi, bisogna stare attenti ai moduli
-- (non me ne prendo responsabilità)
+\end{lstlisting}
 
-```cpp
-  #include <bits/stdc++.h>
+\subsection{FFT modulo M}
+\begin{itemize}
+    \item Accetta numeri negativi, bisogna stare attenti ai moduli
+    \item (Non me ne prendo responsabilità)
+\end{itemize}
+\begin{lstlisting}
+ #include <bits/stdc++.h>
   using namespace std;
 
   #define N	100001
@@ -816,9 +850,10 @@ priority_queue<T,vec<T>,decltype(cmp)> pq{cmp};
       printf("\n");
     return 0;
   }
-```
-### Euclide esteso, ma iterativo (che è un po' più veloce)
-```cpp
+\end{lstlisting}
+
+\subsection{Euclide esteso, ma iterativo}
+\begin{lstlisting}
 int gcd(int a, int b, int& x, int& y) {
     x = 1, y = 0;
     int x1 = 0, y1 = 1, a1 = a, b1 = b;
@@ -830,9 +865,10 @@ int gcd(int a, int b, int& x, int& y) {
     }
     return a1;
 }
-```
-### Convex hull
-```cpp
+\end{lstlisting}
+
+\subsection{Convex Hull}
+\begin{lstlisting}
   struct pt {
       double x, y;
   };
@@ -873,11 +909,13 @@ int gcd(int a, int b, int& x, int& y) {
       }
       a = st;
   }
-```
-### Spfa
-- ricordarsi di aggiungere limite al numero di esecuzioni se possono esserci cicli negativi, altrimenti va all'infinito
+\end{lstlisting}
 
-```cpp
+\subsection{SPFA}
+\begin{itemize}
+    \item Ricordarsi di aggiungere limite al numero di esecuzioni se possono esserci cicli negativi, altrimenti va all'infinito
+\end{itemize}
+\begin{lstlisting}
   const int INF = 1000000000;
   vector<vector<pair<int, int>>> adj;
 
@@ -913,10 +951,10 @@ int gcd(int a, int b, int& x, int& y) {
       }
       return true;
   }
-```
+\end{lstlisting}
 
-### Mst n^2
-```cpp
+\subsection{MST $n^2$}
+\begin{lstlisting}
   int n;
   vector<vector<int>> adj; // adjacency matrix of graph
   const int INF = 1000000000; // weight INF means there is no edge
@@ -953,9 +991,10 @@ int gcd(int a, int b, int& x, int& y) {
       }
       cout << total_weight << endl;
 }
-```
-### Mst mlog(n)
-```cpp
+\end{lstlisting}
+
+\subsection{MST $m\log n$}
+\begin{lstlisting}
   vector<int> parent, rank;
   void make_set(int v) {
       parent[v] = v;
@@ -1004,9 +1043,10 @@ int gcd(int a, int b, int& x, int& y) {
           union_sets(e.u, e.v);
       }
   }
-```
-### Matexp
-```cpp
+\end{lstlisting}
+
+\subsection{Matexp}
+\begin{lstlisting}
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -1082,9 +1122,10 @@ int main ()
 
     return 0;
 }
-```
-### Gauss
-```cpp
+\end{lstlisting}
+
+\subsection{Gauss}
+\begin{lstlisting}
 const double EPS = 1e-9;
 const int INF = 2; // no need for infinity
 
@@ -1130,4 +1171,6 @@ int gauss (vector < vector<double> > a, vector<double> & ans) {
             return INF;
     return 1;
 }
-```
+\end{lstlisting}
+
+\end{document}
