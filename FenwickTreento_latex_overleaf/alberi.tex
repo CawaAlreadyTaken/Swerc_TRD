@@ -1,0 +1,94 @@
+\section{Alberi}
+
+\subsection{UFDS, Union Find Disjoint Set}
+Si può ottimizzare ammortizzando di più mettendo in parent():
+\begin{lstlisting}
+    return nodes[i].parent = parent(nodes[i].parent);
+\end{lstlisting}
+Codice:
+\begin{lstlisting}
+struct Node {
+    int parent=-1, rank=0;
+};
+function<int(int)> parent = [&](int i) {
+    if (nodes[i].parent == -1) return i;
+    return parent(nodes[i].parent);
+};
+auto connect = [&](int a, int b) {
+    int pa = parent(a);
+    int pb = parent(b);
+    if (pa==pb) return false;
+    if (nodes[pa].depth > nodes[pb].depth) swap(pa, pb);
+    nodes[pa].parent = pb;
+    nodes[pb].depth = max(nodes[pb].depth, 1+nodes[pa].depth);
+    return true;
+};
+\end{lstlisting}
+
+\subsection{LCA, Lowest Common Ancestor}
+\begin{enumerate}
+    \item Salvarsi per ogni nodo la profondità dalla radice
+    \item Trovare con binary lifting per ogni nodo l’array "antenati[20]" (e se serve anche anche "dist[20]" o "minarco[20]") dove "antenati[e]" indica l’antenato risalendo di $2^e$ nodi. Basta prima impostare gli "antenati[0]" e poi fare un "for($0<e<20$) for(nodo in albero) nodo.antenati[e] = albero[nodo.antenati[e-1]].antenati[e-1]"
+\end{enumerate}
+\begin{lstlisting}
+for(int e=1;e<20;++e) {
+   for(int i=0; i<N; i++) {
+      int half = albero[i].antenati[e-1];
+      albero[i].antenati[e] = albero[half].antenati[e-1];
+      albero[i].dist[e] = albero[i].dist[e-1] + albero[half].dist[e-1];
+      albero[i].minarco[e] = min(albero[i].minarco[e-1], albero[half].minarco[e-1]);
+   }
+}
+
+
+int lift(int v, int h) {
+   for(int e=20; e>=0; e--) {
+      if(h & (1<<e)) {
+         v = albero[v].antenati[e];
+      }
+   }
+   return v;
+}
+
+int lca(int u, int v) {
+   int hu=albero[u].altezza, hv=albero[v].altezza;
+   if (hu>hv) {
+      u=lift(u, hu-hv);
+   } else if (hv>hu) {
+      v=lift(v, hv-hu);
+   }
+
+   if(u==v) {
+      return u;
+   }
+
+   for(int e=19; e>=0; e--) {
+      if(albero[u].antenati[e]!=albero[v].antenati[e]) {
+         u=albero[u].antenati[e];
+         v=albero[v].antenati[e];
+      }
+   }
+   return albero[u].antenati[0];
+}
+\end{lstlisting}
+Oppure si può fare anche in $O(n)$:
+\begin{enumerate}
+    \item dfs dalla radice salvando quando nodi vengono aperti e chiusi in array
+    \item fare Range Minimum Query con una Sparse Table (la costruzione richiede $O(n\cdot \log n)$)
+\end{enumerate}
+
+\subsection{MST, Minimum Spanning Tree}
+\begin{enumerate}
+    \item Sortare gli archi per il peso ($O(E\cdot \log E)=O(V^2\cdot \log V)$)
+    \item Partire dagli archi più piccoli ed aggiungerli all'albero, ma solo se questo non lo rende non più un albero ($O(E)=O(V^2)$)
+    \item Usare Union Find per capire se un arco unirebbe due nodi già collegati e romperebbe l'albero
+\end{enumerate}
+\begin{itemize}
+    \item Se serve trovare il \textbf{maximum} spanning tree basta scegliere gli archi più grossi invece che più piccoli
+    \item Se serve trovare il \textbf{secondo} minimum spanning tree, si può:
+    \begin{itemize}
+        \item Per ogni percorso che connette due nodi nel MST, trovare l'arco massimo nel percorso con $V$ DFS ($O(V^2)$)
+        \item Per ogni arco $a-b$ che non è già nel MST, calcolare di quanto aumenterebbe il peso totale del MST se si aggiungesse quell'arco e si togliesse però l'arco massimo nel percorso $a-b$
+        \item Il minimo dei pesi totali trovati sopra corrisponde al second minimum spanning tree
+    \end{itemize}
+\end{itemize}

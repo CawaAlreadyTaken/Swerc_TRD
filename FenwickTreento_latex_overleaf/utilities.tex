@@ -1,0 +1,21 @@
+\section{Utilities}
+
+\subsection{Date e tempo}
+\begin{lstlisting}
+struct std::tm tmp;
+
+ll readDate(){
+	cin>>get_time(&tmp, "%Y-%m-%d %H:%M");
+	return chrono::system_clock::from_time_t(mktime(&tmp)).time_since_epoch().count();
+}
+\end{lstlisting}
+
+\subsection{STL}
+\begin{itemize}
+    \item operator$<$ Deve ritornare $false$ in caso di uguaglianza!
+    \item \begin{lstlisting}
+        priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int, int>>>
+    \end{lstlisting}
+    \item auto cmp = [](const T\& a, const T\& b)\{ return /* ... */; \};
+    \item $priority\_queue<T,vec<T>,decltype(cmp)>$ pq\{cmp\};
+\end{itemize}

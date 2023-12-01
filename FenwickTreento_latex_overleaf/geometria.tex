@@ -1,0 +1,33 @@
+\section{Geometria}
+
+\subsection{Vettori}
+\begin{itemize}
+    \item Prodotto vettore: $A^B = A.x\cdot B.y - A.y\cdot B.x = |A|\cdot|B|\cdot sin$(angolo fra A e B)
+    \begin{itemize}
+        \item Proprietà: $A^B = -B^A, A^A = 0, A^{(B+C)} = A^B + A^C$
+    \end{itemize}
+    \item $(0,0)$, $A$ e $B$ allineati sse $A^B = 0$
+    \item Data retta orientata $AB$ e punto $C$, il prodotto $p=(A-C)^{(B-C)}$ indica:
+    \begin{itemize}
+        \item che $C$ è: sulla retta sse $p=0$, a destra della retta sse $p<0$, a sinistra della retta sse $p>0$.
+        \item che $A$, $B$ e $C$ sono: in ordine orario sse $p<0$, antiorario sse $p>0$
+        \item \textbf{Area} triangolo $ABC = |p|/2$ (senza $/2$ per parallelogramma)
+        \item \textbf{Distanza} di $C$ da $AB = |p|/(B-A)$
+    \end{itemize}
+    \item Area poligono $P_0, P_1, ..., P_n-1 = 1/2 \cdot |P_0 \wedge P_1 + P_1 \wedge P_2 + ... + P_{n-2} \wedge P_{n-1} + P_{n-1} \wedge P_0|$
+    \item Per vedere se $P$ è dentro il poligono \textbf{convesso} $P_0, P_1, ..., P_n-1$: controllare se $P$ sempre dalla stessa parte di tutti i $P_0P_1, P_1P_2, ..., P_{n-1}P_0$
+    \item Per vedere se $P$ è dentro un poligono \textbf{concavo}: controllare $\#$ intersezioni della semiretta $PQ$ con $Q$ scelto a caso molto grande: se $\#$ pari $P$ è esterno, se $\#$ dispari è interno
+    \item $AB$ e $CD$ si intersecano sse ($C$ e $D$ da parti opposte di $AB$) e ($A$ e $B$ da parti opposte di $CD$)
+    \begin{itemize}
+        \item Intersezioni mantenute con trasformazioni lineari
+    \end{itemize}
+    \item \textbf{Ordinare} punti per \textbf{angolo}: $sort$ con $operator<(P,Q) = P \wedge Q < 0$
+\end{itemize}
+
+\subsection{Convex Hull}
+\begin{enumerate}
+    \item Trovare il punto più in basso (P0)
+    \item Ordinare per angolo rispetto a P0 usando $(P-P0)\wedge(Q-P0)$, vedi sopra ($N\log N$)
+    \item Andare avanti, e buttare in uno stack il punto che si trova
+    \item Se l’angolo tra gli ultimi 3 è ottuso rimuovo l’elemento centrale dallo stack e ripeto
+\end{enumerate}

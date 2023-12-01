@@ -1,0 +1,37 @@
+\documentclass{article}
+\usepackage[margin=1.5cm]{geometry}
+\usepackage{listings}
+\usepackage{setspace}
+\setstretch{0}
+\usepackage{titlesec}
+\titlespacing\section{0pt}{12pt plus 4pt minus 2pt}{6pt plus 2pt minus 2pt}
+\titlespacing\subsection{0pt}{10pt plus 4pt minus 2pt}{4pt plus 2pt minus 2pt}
+\usepackage{xcolor}
+\lstset{language=C++, 
+        basicstyle=\ttfamily\small, 
+        keywordstyle=\color{blue},
+        commentstyle=\color{green},
+        morecomment=[l][\color{magenta}]{\#},
+        breaklines=true,
+        postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{} % pulisce l'intestazione e il piè di pagina predefiniti
+\rhead{Fenwick Treento} % intestazione a destra
+% \lhead{Nome della Squadra} % intestazione a sinistra
+\cfoot{\thepage} % numero di pagina al centro del piè di pagina
+
+\begin{document}
+
+\input{grafi}
+\input{alberi}
+\input{strutture_dati}
+\input{algoritmi_vari}
+\input{matematica}
+\input{geometria}
+\input{utilities}
+\input{in_caso_di_errore}
+\input{aggiunte_matte}
+
+\end{document}

@@ -1,0 +1,30 @@
+\section{Algoritmi vari}
+
+\subsection{Zaino / 0-1 knapsack}
+\begin{enumerate}
+    \item In input ci sono il numero di oggetti $N$, la capienza dello zaino $C$, i pesi $W[N]$ e i valori $V[N]$
+    \item Caso base $f(N,c) = 0$
+    \item Caso ricorsivo $f(i,c) = (W[i] \leq c$ ? $max(f(i+1, c), f(i+1, c-W[i]) + V[i]) : f(i+1, c))$
+    \item Risultato è $f(0,C)$
+    \item Usare $mem[i][c]$ per salvare risultati e fare DP
+\end{enumerate}
+
+\subsection{LIS, Longest Increasing Subsequence}
+\begin{lstlisting}
+int main() {
+    int N;
+    cin>>n;
+    vector<int> pesi(N), ultimoPreso(N+1, numeric_limits<int>::max());
+    ultimoPreso[0]=0;
+
+    for(int i=0; i<N; i++) cin>>pesi[i];
+
+    for(auto p : pesi) {
+        auto it = lower_bound(ultimoPreso.begin(), ultimoPreso.end(), p);
+        *it = p;
+    }
+
+    auto it = lower_bound(ultimoPreso.begin(), ultimoPreso.end(), numeric_limits<int>::max());
+    cout << (it - ultimoPreso.begin() - 1);
+}
+\end{lstlisting}

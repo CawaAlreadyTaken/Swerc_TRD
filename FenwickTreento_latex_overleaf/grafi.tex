@@ -1,0 +1,145 @@
+\section{Grafi}
+
+\subsection{Ordinamento Topologico (DAG)}
+\begin{enumerate}
+    \item Per ogni nodo esploro tutti i figli e dopo inserisco il risultato in uno stack
+    \item Il risultato è lo stack ribaltato
+\end{enumerate}
+
+\subsection{SCC, Kosaraju, Strongly Connected Components (grafo diretto)}
+\begin{enumerate}
+    \item Calcolo l’ordinamento topologico
+    \item Calcolo il grafo trasposto
+    \item Esploro il grafo trasposto procedendo nell’ordine dell’ordinamento topologico. Ogni esplorazione è una componente fortemente connessa (eventualmente di 1 nodo).
+\end{enumerate}
+\begin{lstlisting}
+struct Node {
+   bool vis=false;
+   int condensed=-1;
+   vector<int> to, from;
+};
+struct CNode {
+   vector<int> nodes;
+   vector<int> to, from;
+};
+
+vector<int> ordinati;
+function<void(int)> toposort = [&](int i){
+    if(nodes[i].vis) return;
+    nodes[i].vis=true;
+    for(auto e:nodes[i].to) toposort(e);
+    ordinati.push_back(i);
+};
+for(int n=0;n<N;++n) toposort(n);
+
+int c=0;
+vector<CNode> condensed;
+function<void(int)> condense = [&](int i){
+    if(nodes[i].condensed!=-1) {
+        if(nodes[i].condensed!=c) {
+            condensed[c].from.push_back(nodes[i].condensed);
+            condensed[nodes[i].condensed].to.push_back(c);
+        }
+        return;
+    }
+    nodes[i].condensed=c;
+    condensed[c].nodes.push_back(i);
+    for(auto e:nodes[i].from) condense(e);
+};
+
+for(int n=0;n<N;++n){
+  if(nodes[ordinati[N-n-1]].condensed==-1) {
+     condensed.emplace_back();
+     condense(ordinati[N-n-1]);
+     ++c;
+  }
+}
+\end{lstlisting}
+
+\subsection{Max Flow}
+\begin{enumerate}
+    \item in BFS $\rightarrow$ O($V\cdot E^2$)
+    \item in DFS $\rightarrow$ O($flow\cdot (V+E)$)
+\end{enumerate}
+\begin{lstlisting}
+vector<int> parent(N);
+auto bfsAugmentingPath = [&]() -> int {
+   fill(parent.begin(), parent.end(), -1);
+   parent[S] = -2; // prevent passing through S
+   queue<pair<int, int>> q;
+   q.push({S, numeric_limits<int>::max()});
+
+   while (!q.empty()) {
+       auto [i, flow] = q.front();
+       q.pop();
+
+       for (int e : adj[i]) {
+          if (capacity[i][e] > 0 && parent[e] == -1) {
+             parent[e] = i;
+             if (e == T) return min(flow, capacity[i][e]);
+             q.push({e, min(flow, capacity[i][e])});
+          }
+       }
+   }
+   return 0;
+};
+
+int flow=0;
+while(1) {
+    int partialFlow = bfsAugmentingPath();
+    if (partialFlow == 0) break;
+    flow += partialFlow;
+
+    int last=T;
+    while(last!=S){
+       capacity[parent[last]][last] -= partialFlow;
+       capacity[last][parent[last]] += partialFlow;
+       last = parent[last];
+    }
+ }
+\end{lstlisting}
+
+\subsection{Tarjan, Articulation points and bridges (grafo non diretto)}
+\begin{enumerate}
+    \item Inizialmente settare $t=0$
+    \item Fare DFS incrementando $t$ ogni volta che si attraversa un arco in avanti, cioè ogni volta che si vede un nuovo nodo
+    \item Ogni nodo ha un $tEntrata$ e un $tMin$
+    \begin{itemize}
+        \item $tEntrata$ è il $t$ della prima volta in cui quel nodo è stato visto
+        \item $tMin$ è il min tra $tEntrata$ e tutti i $tMin$ dei nodi adiacenti eccetto il padre nella DFS
+    \end{itemize}
+    \item Il nodo $b$ è un \textbf{articulation point} se esiste un nodo adiacente $a$ tale per cui $a.tMin \geq b.tEntrata$
+    \item L'arco che connette due nodi $a$ e $b$ è un \textbf{bridge} se $a.tMin > b.tEntrata$
+\end{enumerate}
+
+\subsection{Bipartite Graph / Bicoloring}
+\begin{lstlisting}
+struct Node {
+  int color=-1;
+  vector<int> conn;
+};
+
+int32_t main() {
+  vector<Node> nodes(N);
+  queue<pair<int,int>> q;
+  q.push({0,0});
+  bool bicolorable=true;
+
+  while (!q.empty()) {
+    auto [i,c] = q.front();
+    q.pop();
+
+    if (nodes[i].color == -1) {
+      nodes[i].color=c;
+      for(auto&& con : nodes[i].conn) {
+        q.push({con, (c+1)%2});
+      }
+    } else {
+      if (nodes[i].color!=c) {
+        bicolorable=false;
+        break;
+      }
+    }
+  }
+}
+\end{lstlisting}

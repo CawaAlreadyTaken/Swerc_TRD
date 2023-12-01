@@ -1,0 +1,168 @@
+\section{Strutture Dati}
+
+\subsection{Segment Tree base}
+\begin{lstlisting}
+int higherPowerOf2(int x) {
+    int res = 1;
+    while (res < x) res *= 2;
+    return res;
+}
+
+struct SegmentTree {
+    vector<int> data;
+    SegmentTree(int n) : data(2 * higherPowerOf2(n), 0) {}
+
+    int query(int i, int a, int b, int x, int y) {
+        if (b <= x || a >= y) return 0;
+        if (b <= y && a >= x) return data[i];
+
+        return query(i*2,   a, (a+b)/2, x, y)
+             + query(i*2+1, (a+b)/2, b, x, y);
+    }
+
+    int update(int i, int a, int b, int x, int v) {
+        if (x < a || x >= b) return data[i];
+        if (a == b-1) {
+            assert(a == x);
+            return data[i] = v;
+        }
+
+        return data[i] = update(i*2,   a, (a+b)/2, x, v)
+                        + update(i*2+1, (a+b)/2, b, x, v);
+    }
+
+    int query(int x, int y) {
+        assert(x <= y);
+        return query(1, 0, data.size()/2, x, y);
+    }
+
+    void update(int x, int v) {
+        update(1, 0, data.size()/2, x, v);
+    }
+};
+\end{lstlisting}
+
+\subsection{Segment Tree con Lazy Propagation}
+\begin{lstlisting}
+enum class Mode : char { none, add, set };
+struct Node {
+   ll min = numeric_limits<ll>::max();
+   ll sum = 0;
+
+   ll update = 0;
+   Mode mode = Mode::none;
+};
+void setup(const vector<ll>& v, int a, int b, int i) {
+   if (b-a == 1) {
+      if (a < (ll)v.size()) {
+         dat[i].min = v[a];
+         dat[i].sum = v[a];
+      }
+      return;
+   }
+   setup(v, a, (a+b)/2, i*2);
+   setup(v, (a+b)/2, b, i*2+1);
+   setup(i);
+}
+void setup(int i) {
+   if (i2 >= (ll)dat.size()) return;
+   dat[i].min = min(dat[i*2].min, dat[i*2+1].min);
+   dat[i].sum = dat[i*2].sum + dat[i*2+1].sum;
+}
+void lazyPropStep(int a, int b, int i, ll update, Mode mode) {
+   if(mode == Mode::none) {
+      return;
+   } else if (mode == Mode::add) {
+      if (dat[i].mode == Mode::none) {
+         dat[i].update = 0; // just in case
+      }
+      dat[i].min += update;
+      dat[i].sum += (b-a)*update;
+      dat[i].update += update;
+      if (dat[i].mode == Mode::none) {
+         dat[i].mode = Mode::add; // do not change Mode::set
+      }
+   } else /* mode == Mode::set */ {
+      dat[i].min = update;
+      dat[i].sum = (b-a)*update;
+      dat[i].update = update;
+      dat[i].mode = Mode::set;
+   }
+}
+void lazyProp(int a, int b, int i) {
+   if (i*2 >= (ll)dat.size()) return;
+   lazyPropStep(a, (a+b)/2, i*2,   dat[i].update, dat[i].mode);
+   lazyPropStep((a+b)/2, b, i*2+1, dat[i].update, dat[i].mode);
+   dat[i].update = 0;
+   dat[i].mode = Mode::none;
+}
+ll queryMin(int l, int r, int a, int b, int i) {
+   if (a>=r || b<=l) return numeric_limits<int>::max();
+   if (a>=l && b<=r) return dat[i].min;
+   lazyProp(a, b, i);
+   return min(queryMin(l, r, a, (a+b)/2, i*2),
+              queryMin(l, r, (a+b)/2, b, i*2+1));
+}
+ll querySum(int l, int r, int a, int b, int i) {
+   if (a>=r || b<=l) return 0;
+   if (a>=l && b<=r) return dat[i].sum;
+   lazyProp(a, b, i);
+   return querySum(l, r, a, (a+b)/2, i*2)
+        + querySum(l, r, (a+b)/2, b, i*2+1);
+}
+void lazyAdd(int l, int r, ll x, int a, int b, int i) {
+   if (a>=r || b<=l) return;
+   lazyProp(a, b, i);
+   if (a>=l && b<=r) {
+      dat[i].min += x;
+      dat[i].sum += (b-a)*x;
+      dat[i].update = x;
+      dat[i].mode = Mode::add;
+      return;
+   }
+   lazyAdd(l, r, x, a, (a+b)/2, i*2);
+   lazyAdd(l, r, x, (a+b)/2, b, i*2+1);
+   setup(i);
+}
+void lazySet(int l, int r, ll x, int a, int b, int i) {
+   if (a>=r || b<=l) return;
+   lazyProp(a, b, i);
+   if (a>=l && b<=r) {
+      dat[i].min = x;
+      dat[i].sum = (b-a)*x;
+      dat[i].update = x;
+      dat[i].mode = Mode::set;
+      return;
+   }
+   lazySet(l, r, x, a, (a+b)/2, i*2);
+   lazySet(l, r, x, (a+b)/2, b, i*2+1);
+   setup(i);
+}
+\end{lstlisting}
+
+\subsection{Fenwick Tree}
+\begin{lstlisting}
+int leastSignificantOneBit(int i){
+	return i & (-i);
+}
+
+struct FenwickTree {
+	vector<int> data;
+	FenwickTree(int N) : data(N) {}
+	void add(int pos, int value) {
+		if (pos>=data.size()) return;
+		data[pos] += value;
+		add(pos + leastSignificantOneBit(pos), value);
+	}
+	int sumUpTo(int pos) {
+		if (pos==0) return 0;
+		return data[pos] + sumUpTo(pos - leastSignificantOneBit(pos));
+	}
+};
+\end{lstlisting}
+
+\subsection{Sparse Table}
+\begin{itemize}
+    \item Per ogni elemento di un array applico l'operazione ai range $[0,1), [0,2), [0,4), ...$ (potenze di 2) e salvo il valore in un array $st[N][32]$
+    \item (vale per operazioni idempotenti, i.e. "a op a = a") per trovare il valore nel range $[l,r)$ in $O(1)$ basta trovare $k = max(k\_$ tali che $2^{k\_} \leq r-l$) e poi il risultato della query è "st[l][k] op st[r-($1LL<<k$)][k]"
+\end{itemize}
