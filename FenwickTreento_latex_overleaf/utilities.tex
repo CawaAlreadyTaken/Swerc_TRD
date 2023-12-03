@@ -14,8 +14,10 @@ ll readDate(){
 \begin{itemize}
     \item operator$<$ Deve ritornare $false$ in caso di uguaglianza!
     \item \begin{lstlisting}
-        priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int, int>>>
+    priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int, int>>>
+    // Oppure funzione custom:
+    auto cmp = [](const T& a, const T& b){ return /* ... */; };
+    priority_queue<T,vec<T>,decltype(cmp)> pq(cmp);
     \end{lstlisting}
-    \item auto cmp = [](const T\& a, const T\& b)\{ return /* ... */; \};
-    \item $priority\_queue<T,vec<T>,decltype(cmp)>$ pq\{cmp\};
+    \item Funziona anche per il sort: sort(a.begin(), a.end(), cmp);
 \end{itemize}

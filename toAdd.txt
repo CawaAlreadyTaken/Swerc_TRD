@@ -1,3 +1,3 @@
-funzioni di comparazione per il sort / funzione di hash per le unordered map / funzione di comparazione per le priority_queue
+funzione di hash per le unordered map
 
 https://www.geeksforgeeks.org/ordered-set-gnu-c-pbds/amp/
