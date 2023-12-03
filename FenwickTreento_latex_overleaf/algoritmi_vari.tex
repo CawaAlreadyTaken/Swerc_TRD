@@ -24,7 +24,8 @@ int main() {
         *it = p;
     }
 
-    auto it = lower_bound(ultimoPreso.begin(), ultimoPreso.end(), numeric_limits<int>::max());
+    auto it=lower_bound(ultimoPreso.begin(), ultimoPreso.end(), numeric_limits<int>::max());
     cout << (it - ultimoPreso.begin() - 1);
 }
 \end{lstlisting}
+

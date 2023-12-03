@@ -2,7 +2,7 @@
 
 \subsection{Ordinamento Topologico (DAG)}
 \begin{enumerate}
-    \item Per ogni nodo esploro tutti i figli e dopo inserisco il risultato in uno stack
+    \item Per ogni nodo esploro tutti i figli in DFS e dopo inserisco il risultato in uno stack
     \item Il risultato è lo stack ribaltato
 \end{enumerate}
 
@@ -143,3 +143,46 @@ int32_t main() {
   }
 }
 \end{lstlisting}
+
+\subsection{SPFA (Bellman-Ford's improved)}
+\begin{itemize}
+    \item Ricordarsi di aggiungere limite al numero di esecuzioni se possono esserci cicli negativi, altrimenti va all'infinito
+\end{itemize}
+\begin{lstlisting}
+  const int INF = 1000000000;
+  vector<vector<pair<int, int>>> adj;
+
+  bool spfa(int s, vector<int>& d) {
+      int n = adj.size();
+      d.assign(n, INF);
+      vector<int> cnt(n, 0);
+      vector<bool> inqueue(n, false);
+      queue<int> q;
+      d[s] = 0;
+      q.push(s);
+      inqueue[s] = true;
+      while (!q.empty()) {
+          int v = q.front();
+          q.pop();
+          inqueue[v] = false;
+
+          for (auto edge : adj[v]) {
+              int to = edge.first;
+              int len = edge.second;
+
+              if (d[v] + len < d[to]) {
+                  d[to] = d[v] + len;
+                  if (!inqueue[to]) {
+                      q.push(to);
+                      inqueue[to] = true;
+                      cnt[to]++;
+                      if (cnt[to] > n)
+                          return false;  // negative cycle
+                  }
+              }
+          }
+      }
+      return true;
+  }
+\end{lstlisting}
+

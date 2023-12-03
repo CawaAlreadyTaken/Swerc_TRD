@@ -1,18 +1,14 @@
 \section{Alberi}
 
 \subsection{UFDS, Union Find Disjoint Set}
-Si può ottimizzare ammortizzando di più mettendo in parent():
-\begin{lstlisting}
-    return nodes[i].parent = parent(nodes[i].parent);
-\end{lstlisting}
-Codice:
+
 \begin{lstlisting}
 struct Node {
     int parent=-1, rank=0;
 };
 function<int(int)> parent = [&](int i) {
     if (nodes[i].parent == -1) return i;
-    return parent(nodes[i].parent);
+    return nodes[i].parent = parent(nodes[i].parent);
 };
 auto connect = [&](int a, int b) {
     int pa = parent(a);
@@ -92,3 +88,97 @@ Oppure si può fare anche in $O(n)$:
         \item Il minimo dei pesi totali trovati sopra corrisponde al second minimum spanning tree
     \end{itemize}
 \end{itemize}
+
+\begin{lstlisting}
+  // This is m log n
+  vector<int> parent, rank;
+  void make_set(int v) {
+      parent[v] = v;
+      rank[v] = 0;
+  }
+
+  int find_set(int v) {
+      if (v == parent[v])
+          return v;
+      return parent[v] = find_set(parent[v]);
+  }
+  void union_sets(int a, int b) {
+      a = find_set(a);
+      b = find_set(b);
+      if (a != b) {
+          if (rank[a] < rank[b])
+              swap(a, b);
+          parent[b] = a;
+          if (rank[a] == rank[b])
+              rank[a]++;
+      }
+  }
+  struct Edge {
+      int u, v, weight;
+      bool operator<(Edge const& other) {
+          return weight < other.weight;
+      }
+  };
+
+  int n;
+  vector<Edge> edges;
+
+  int cost = 0;
+  vector<Edge> result;
+  parent.resize(n);
+  rank.resize(n);
+  for (int i = 0; i < n; i++)
+      make_set(i);
+
+  sort(edges.begin(), edges.end());
+
+  for (Edge e : edges) {
+      if (find_set(e.u) != find_set(e.v)) {
+          cost += e.weight;
+          result.push_back(e);
+          union_sets(e.u, e.v);
+      }
+  }
+\end{lstlisting}
+
+OTHERWISE:
+
+\begin{lstlisting}
+  // This is n^2
+  int n;
+  vector<vector<int>> adj; // adjacency matrix of graph
+  const int INF = 1000000000; // weight INF means there is no edge
+
+  struct Edge {
+      int w = INF, to = -1;
+  };
+  void prim() {
+      int total_weight = 0;
+      vector<bool> selected(n, false);
+      vector<Edge> min_e(n);
+      min_e[0].w = 0;
+      for (int i=0; i<n; ++i) {
+          int v = -1;
+          for (int j = 0; j < n; ++j) {
+              if (!selected[j] && (v == -1 || min_e[j].w < min_e[v].w))
+                  v = j;
+          }
+
+          if (min_e[v].w == INF) {
+              cout << "No MST!" << endl;
+              exit(0);
+          }
+
+          selected[v] = true;
+          total_weight += min_e[v].w;
+          if (min_e[v].to != -1)
+              cout << v << " " << min_e[v].to << endl;
+
+          for (int to = 0; to < n; ++to) {
+              if (adj[v][to] < min_e[to].w)
+                  min_e[to] = {adj[v][to], v};
+          }
+      }
+      cout << total_weight << endl;
+  }
+\end{lstlisting}

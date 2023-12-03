@@ -166,3 +166,22 @@ struct FenwickTree {
     \item Per ogni elemento di un array applico l'operazione ai range $[0,1), [0,2), [0,4), ...$ (potenze di 2) e salvo il valore in un array $st[N][32]$
     \item (vale per operazioni idempotenti, i.e. "a op a = a") per trovare il valore nel range $[l,r)$ in $O(1)$ basta trovare $k = max(k\_$ tali che $2^{k\_} \leq r-l$) e poi il risultato della query è "st[l][k] op st[r-($1LL<<k$)][k]"
 \end{itemize}
+Esempio: RMQ
+\begin{lstlisting}
+int st[K + 1][MAXN];
+
+std::copy(array.begin(), array.end(), st[0]);
+
+for (int i = 1; i <= K; i++)
+    for (int j = 0; j + (1 << i) <= N; j++)
+        st[i][j] = min(st[i - 1][j], st[i - 1][j + (1 << (i - 1))]);
+        
+// Precompute lg:
+int lg[MAXN+1];
+lg[1] = 0;
+for (int i = 2; i <= MAXN; i++)
+    lg[i] = lg[i/2] + 1;
+// Query
+int i = lg[R - L + 1];
+int minimum = min(st[i][L], st[i][R - (1 << i) + 1]);
+\end{lstlisting}

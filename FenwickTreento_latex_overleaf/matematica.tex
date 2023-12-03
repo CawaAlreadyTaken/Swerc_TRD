@@ -12,6 +12,21 @@ int fastExp(int x, int e){
 \subsection{Euclide esteso}
 $A/B=d\; \& \;A\%B=C \rightarrow Bx+Cy = 1$ con $y=-x$ e $x = dx - y$
 
+\subsection{Euclide esteso, ma iterativo}
+\begin{lstlisting}
+int gcd(int a, int b, int& x, int& y) {
+    x = 1, y = 0;
+    int x1 = 0, y1 = 1, a1 = a, b1 = b;
+    while (b1) {
+        int q = a1 / b1;
+        tie(x, x1) = make_tuple(x1, x - q * x1);
+        tie(y, y1) = make_tuple(y1, y - q * y1);
+        tie(a1, b1) = make_tuple(b1, a1 - q * b1);
+    }
+    return a1;
+}
+\end{lstlisting}
+
 \subsection{Fermat \& inverso moltiplicativo}
 Inverso di $A = A^{(M-2)}\%M = fastExp(A, M-2)$
 
@@ -51,3 +66,132 @@ signed main() {
    hash_t hcmp = (((hashes[n + l] - hashes[n] + M) % M) * PexpMulInv[n]) % M;
 }
 \end{lstlisting}
+
+\subsection{Gauss (solving system of linear equations)}
+\begin{lstlisting}
+const double EPS = 1e-9;
+const int INF = 2; // no need for infinity
+
+int gauss (vector < vector<double> > a, vector<double> & ans) {
+    int n = (int) a.size();
+    int m = (int) a[0].size() - 1;
+
+    vector<int> where (m, -1);
+    for (int col=0, row=0; col<m && row<n; ++col) {
+        int sel = row;
+        for (int i=row; i<n; ++i)
+            if (abs (a[i][col]) > abs (a[sel][col]))
+                sel = i;
+        if (abs (a[sel][col]) < EPS)
+            continue;
+        for (int i=col; i<=m; ++i)
+            swap (a[sel][i], a[row][i]);
+        where[col] = row;
+
+        for (int i=0; i<n; ++i)
+            if (i != row) {
+                double c = a[i][col] / a[row][col];
+                for (int j=col; j<=m; ++j)
+                    a[i][j] -= a[row][j] * c;
+            }
+        ++row;
+    }
+
+    ans.assign (m, 0);
+    for (int i=0; i<m; ++i)
+        if (where[i] != -1)
+            ans[i] = a[where[i]][m] / a[where[i]][i];
+    for (int i=0; i<n; ++i) {
+        double sum = 0;
+        for (int j=0; j<m; ++j)
+            sum += ans[j] * a[i][j];
+        if (abs (sum - a[i][m]) > EPS)
+            return 0;
+    }
+
+    for (int i=0; i<m; ++i)
+        if (where[i] == -1)
+            return INF;
+    return 1;
+}
+\end{lstlisting}
+
+\subsection{Matexp}
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+const int N = 3;
+
+const long long M = 1000000007;
+
+void multiply (long long A[N][N], long long B[N][N]){
+    long long R[N][N];
+
+    for (int i = 0; i < N; i++){
+        for (int j = 0; j < N; j++){
+            R[i][j] = 0;
+            for (int k = 0; k < N; k++){
+                R[i][j] = (R[i][j] + A[i][k] * B[k][j]) % M;
+            }
+        }
+    }
+
+    for (int i = 0; i < N; i++){
+        for (int j = 0; j < N; j++){
+            A[i][j] = R[i][j];
+        }
+    }
+}
+
+void power_matrix (long long A[N][N], int n){
+    long long B[N][N];
+
+    for (int i = 0; i < N; i++){
+        for (int j = 0; j < N; j++){
+            B[i][j] = A[i][j];
+        }
+    }
+
+    n = n - 1;
+    while (n > 0)
+    {
+        if (n & 1)
+            multiply (A, B);
+
+        multiply (B,B);
+
+        n = n >> 1;  
+    }
+}
+
+long long solve_recurrence (long long A[N][N], long long B[N][1], int n){
+    if (n < N)
+        return B[N - 1 - n][0];
+    
+    power_matrix (A, n - N + 1);
+    
+    long long result = 0;
+    
+    for (int i = 0; i < N; i++)
+        result = (result + A[0][i] * B[i][0]) % M;
+    
+    return result;
+}
+
+int main ()
+{
+
+    long long A[N][N] = {{2, 1, 3}, {1, 0, 0}, {0, 1, 0}};
+    long long B[N][1] = {{3}, {2}, {1}};
+    
+    int n = 5;
+    
+    long long R_n = solve_recurrence (A, B, n);
+    
+    cout << "R_" << n << " = " << R_n; 
+
+    return 0;
+}
+\end{lstlisting}
+

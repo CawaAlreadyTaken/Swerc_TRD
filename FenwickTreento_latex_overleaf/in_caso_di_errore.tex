@@ -35,12 +35,28 @@
 \subsection{Time limit exceeded TLE}
 \begin{enumerate}
     \item $\#$pragma GCC optimize("O3")
+    \item $\#$pragma GCC optimize("unroll-loops") \textit{Reduces the number of branches and optimizes parallel computation, but might increase code size too much and lead to instruction cache misses.}
+    \item $\#$pragma GCC optimize("Ofast") \textit{It turns on all optimizations that O3 offers, along with some other optimizations, some of which might not be standards compliant.}
     \item Hai qualche possibile loop infinito?
     \item Qual è la complessità del tuo algoritmo?
     \item Stai copiando molti dati non necessari? (usa le reference)
     \item Quanto è grande l'input e l'output?
     \item Cosa pensano i tuoi compagni di squadra del tuo algoritmo?
 \end{enumerate}
+Fast input:
+\begin{lstlisting}
+int read() {
+  Int s = 1, x = 0;
+  char c = getchar();
+  while (!isdigit(c)) {
+    if (c == '-')
+      s = -1;
+    c = getchar();
+  }
+  while (isdigit(c))
+    x = (x << 3) + (x << 1) + (c ^ 48), c = getchar();
+  return s * x;
+\end{lstlisting}
 
 \subsection{Memory limit exceeded MLE}
 \begin{enumerate}
@@ -54,3 +70,4 @@
     \item Avete rimosso tutte le stampe di debug?
     \item Il vostro ciclo di output può andare in tilt?
 \end{enumerate}
+

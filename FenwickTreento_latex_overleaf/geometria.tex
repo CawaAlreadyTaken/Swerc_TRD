@@ -2,12 +2,12 @@
 
 \subsection{Vettori}
 \begin{itemize}
-    \item Prodotto vettore: $A^B = A.x\cdot B.y - A.y\cdot B.x = |A|\cdot|B|\cdot sin$(angolo fra A e B)
+    \item Prodotto vettore: $A\wedge B = A.x\cdot B.y - A.y\cdot B.x = |A|\cdot|B|\cdot sin$(angolo fra A e B)
     \begin{itemize}
-        \item Proprietà: $A^B = -B^A, A^A = 0, A^{(B+C)} = A^B + A^C$
+        \item Proprietà: $A\wedge B = -B\wedge A, A\wedge A = 0, A\wedge {(B+C)} = A\wedge B + A\wedge C$
     \end{itemize}
-    \item $(0,0)$, $A$ e $B$ allineati sse $A^B = 0$
-    \item Data retta orientata $AB$ e punto $C$, il prodotto $p=(A-C)^{(B-C)}$ indica:
+    \item $(0,0)$, $A$ e $B$ allineati sse $A\wedge B = 0$
+    \item Data retta orientata $AB$ e punto $C$, il prodotto $p=(A-C)\wedge {(B-C)}$ indica:
     \begin{itemize}
         \item che $C$ è: sulla retta sse $p=0$, a destra della retta sse $p<0$, a sinistra della retta sse $p>0$.
         \item che $A$, $B$ e $C$ sono: in ordine orario sse $p<0$, antiorario sse $p>0$
@@ -31,3 +31,46 @@
     \item Andare avanti, e buttare in uno stack il punto che si trova
     \item Se l’angolo tra gli ultimi 3 è ottuso rimuovo l’elemento centrale dallo stack e ripeto
 \end{enumerate}
+
+\begin{lstlisting}
+  struct pt {
+      double x, y;
+  };
+
+  int orientation(pt a, pt b, pt c) {
+      double v = a.x*(b.y-c.y)+b.x*(c.y-a.y)+c.x*(a.y-b.y);
+      if (v < 0) return -1; // clockwise
+      if (v > 0) return +1; // counter-clockwise
+      return 0;
+  }
+  bool cw(pt a, pt b, pt c, bool include_collinear) {
+      int o = orientation(a, b, c);
+      return o < 0 || (include_collinear && o == 0);
+  }
+  bool collinear(pt a, pt b, pt c) { return orientation(a, b, c) == 0; }
+  void convex_hull(vector<pt>& a, bool include_collinear = false) {
+      pt p0 = *min_element(a.begin(), a.end(), [](pt a, pt b) {
+          return make_pair(a.y, a.x) < make_pair(b.y, b.x);
+      });
+      sort(a.begin(), a.end(), [&p0](const pt& a, const pt& b) {
+          int o = orientation(p0, a, b);
+          if (o == 0)
+              return (p0.x-a.x)*(p0.x-a.x) + (p0.y-a.y)*(p0.y-a.y)
+                  < (p0.x-b.x)*(p0.x-b.x) + (p0.y-b.y)*(p0.y-b.y);
+          return o < 0;
+      });
+      if (include_collinear) {
+          int i = (int)a.size()-1;
+          while (i >= 0 && collinear(p0, a[i], a.back())) i--;
+          reverse(a.begin()+i+1, a.end());
+      }
+
+      vector<pt> st;
+      for (int i = 0; i < (int)a.size(); i++) {
+          while (st.size() > 1 && !cw(st[st.size()-2], st.back(), a[i], include_collinear))
+              st.pop_back();
+          st.push_back(a[i]);
+      }
+      a = st;
+  }
+\end{lstlisting}
