@@ -1,16 +1,3 @@
 funzioni di comparazione per il sort / funzione di hash per le unordered map / funzione di comparazione per le priority_queue
 
-fast input:
-int read() {
-  Int s = 1, x = 0;
-  char c = getchar();
-  while (!isdigit(c)) {
-    if (c == '-')
-      s = -1;
-    c = getchar();
-  }
-  while (isdigit(c))
-    x = (x << 3) + (x << 1) + (c ^ 48), c = getchar();
-  return s * x;
-
 https://www.geeksforgeeks.org/ordered-set-gnu-c-pbds/amp/
