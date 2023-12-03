@@ -2,3 +2,4 @@ Funzione di hash per le unordered map
 Manacher's Algorithm
 Trie o robe su stringhe
 PBDS: https://www.geeksforgeeks.org/ordered-set-gnu-c-pbds/amp/
+constexpr
