@@ -3,3 +3,4 @@ Manacher's Algorithm
 Trie o robe su stringhe
 PBDS: https://www.geeksforgeeks.org/ordered-set-gnu-c-pbds/amp/
 constexpr
+https://github.com/alaahmet/Competitive-Programming (il prof dell'eth) 
